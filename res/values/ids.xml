@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="FrameLayout1">false</item>
+    <item type="id" name="connectionInfoLayout">false</item>
+    <item type="id" name="player_name">false</item>
+    <item type="id" name="server_ip">false</item>
+    <item type="id" name="connect_phones">false</item>
+    <item type="id" name="gameInfoLayout">false</item>
+    <item type="id" name="tableRow4">false</item>
+    <item type="id" name="cardImage">false</item>
+    <item type="id" name="overlayLayout">false</item>
+    <item type="id" name="msgText">false</item>
+    <item type="id" name="dealButton">false</item>
+    <item type="id" name="newGameButton">false</item>
+</resources>

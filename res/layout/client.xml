@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@id/FrameLayout1" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:orientation="vertical" android:id="@id/connectionInfoLayout" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <EditText android:id="@id/player_name" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Eóin" android:hint="Your Name" android:ems="10" android:inputType="textPersonName" android:textAlignment="4" />
+            <EditText android:gravity="center" android:id="@id/server_ip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="192.168.1.2" android:ems="10" android:digits="0123456789." android:inputType="phone" />
+            <Button android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/connect_phones" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Connect to Server" />
+        </LinearLayout>
+        <TableLayout android:id="@id/gameInfoLayout" android:padding="10.0dip" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <TableRow android:id="@id/tableRow4" android:layout_width="fill_parent" android:layout_height="fill_parent" android:textAlignment="4">
+                <ImageView android:id="@id/cardImage" android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/ic_launcher" android:layout_span="3" android:layout_weight="10.0" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:id="@id/overlayLayout" android:background="#d0000000" android:visibility="invisible" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <TextView android:textColor="#ffffffff" android:gravity="center" android:layout_gravity="top" android:id="@id/msgText" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="@dimen/smxy_gap" android:text="Waiting on your turn" />
+            <Button android:textColor="#ffffffff" android:id="@id/dealButton" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="New Deal!" />
+            <Button android:textColor="#ffffffff" android:id="@id/newGameButton" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start New Game!" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

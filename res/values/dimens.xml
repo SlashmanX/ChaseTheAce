@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="smxy_gap">10.0dip</dimen>
+    <dimen name="font_size">32.0dip</dimen>
+</resources>
