@@ -27,6 +27,8 @@ import android.widget.Toast;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.Animator.AnimatorListener;
 import com.nineoldandroids.animation.ObjectAnimator;
+import com.tallordergames.chasetheace.R;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -47,18 +49,19 @@ public class ClientActivity extends Activity
   {
     public void onClick(View paramView)
     {
-      if (!ClientActivity.this.connected)
+      if (!connected)
       {
-        ClientActivity.this.serverIpAddress = ClientActivity.this.serverIp.getText().toString();
-        ClientActivity.this.yourName = ClientActivity.this.playerName.getText().toString();
-        if ((!ClientActivity.this.serverIpAddress.equals("")) && (!ClientActivity.this.yourName.equals("")))
+        serverIpAddress = serverIp.getText().toString();
+        yourName = playerName.getText().toString();
+        if ((!serverIpAddress.equals("")) && (!yourName.equals("")))
         {
-          InputMethodManager localInputMethodManager = (InputMethodManager)ClientActivity.this.getSystemService("input_method");
-          localInputMethodManager.hideSoftInputFromWindow(ClientActivity.this.serverIp.getWindowToken(), 0);
-          localInputMethodManager.hideSoftInputFromWindow(ClientActivity.this.playerName.getWindowToken(), 0);
-          new Thread(new ClientActivity.ClientThread(ClientActivity.this)).start();
-          ClientActivity.this.showMsgOverlay();
-          ClientActivity.this.msgText.setText("Waiting to start game");
+          InputMethodManager localInputMethodManager = (InputMethodManager)getSystemService("input_method");
+          localInputMethodManager.hideSoftInputFromWindow(serverIp.getWindowToken(), 0);
+          localInputMethodManager.hideSoftInputFromWindow(playerName.getWindowToken(), 0);
+          Thread fst = new Thread(new ClientThread());
+          fst.start();
+          showMsgOverlay();
+          msgText.setText("Waiting to start game");
         }
       }
     }
@@ -71,11 +74,11 @@ public class ClientActivity extends Activity
   {
     public void onClick(View paramView)
     {
-      if (ClientActivity.this.connected)
+      if (connected)
       {
-        ClientActivity.this.sendCmdToServer("NEWDEAL");
-        ClientActivity.this.dealButton.setVisibility(8);
-        ClientActivity.this.msgText.setText("Waiting on your turn.");
+        sendCmdToServer("NEWDEAL");
+        dealButton.setVisibility(View.GONE);
+        msgText.setText("Waiting on your turn.");
       }
     }
   };
@@ -93,14 +96,14 @@ public class ClientActivity extends Activity
   private String serverIpAddress = "";
   private Socket socket;
   private Button startGameButton;
-  private View.OnClickListener startGameListener = new View.OnClickListener()
+  private OnClickListener startGameListener = new OnClickListener()
   {
     public void onClick(View paramView)
     {
-      if (ClientActivity.this.connected)
+      if (connected)
       {
-        ClientActivity.this.sendCmdToServer("STARTNEWGAME");
-        ClientActivity.this.startGameButton.setVisibility(4);
+        sendCmdToServer("STARTNEWGAME");
+        startGameButton.setVisibility(View.INVISIBLE);
       }
     }
   };
@@ -112,17 +115,17 @@ public class ClientActivity extends Activity
     {
       public void run()
       {
-        ClientActivity.this.connectionInfoLayout.setVisibility(8);
-        ClientActivity.this.gameInfoLayout.setVisibility(0);
-        ClientActivity.this.showMsgOverlay();
-        Toast.makeText(ClientActivity.this.getApplication(), "Connected to server!", 1).show();
+        connectionInfoLayout.setVisibility(View.GONE);
+        gameInfoLayout.setVisibility(View.VISIBLE);
+        showMsgOverlay();
+        Toast.makeText(getApplication(), "Connected to server!", Toast.LENGTH_SHORT).show();
       }
     });
   }
 
   public void hideMsgOverlay()
   {
-    this.overlayLayout.setVisibility(4);
+    this.overlayLayout.setVisibility(View.INVISIBLE);
     this.cardImage.setOnClickListener(this);
     this.cardImage.setOnTouchListener(this.gestureListener);
   }
@@ -134,27 +137,27 @@ public class ClientActivity extends Activity
   protected void onCreate(Bundle paramBundle)
   {
     super.onCreate(paramBundle);
-    setContentView(2130903040);
-    this.serverIp = ((EditText)findViewById(2131361795));
-    this.playerName = ((EditText)findViewById(2131361794));
-    this.connectPhones = ((Button)findViewById(2131361796));
-    this.dealButton = ((Button)findViewById(2131361802));
-    this.startGameButton = ((Button)findViewById(2131361803));
-    this.connectionInfoLayout = ((LinearLayout)findViewById(2131361793));
-    this.gameInfoLayout = ((LinearLayout)findViewById(2131361797));
-    this.overlayLayout = ((LinearLayout)findViewById(2131361800));
-    this.msgText = ((TextView)findViewById(2131361801));
-    this.cardImage = ((ImageView)findViewById(2131361799));
+    setContentView(R.layout.client);
+    this.serverIp = ((EditText)findViewById(R.id.server_ip));
+    this.playerName = ((EditText)findViewById(R.id.player_name));
+    this.connectPhones = ((Button)findViewById(R.id.connect_phones));
+    this.dealButton = ((Button)findViewById(R.id.dealButton));
+    this.startGameButton = ((Button)findViewById(R.id.newGameButton));
+    this.connectionInfoLayout = ((LinearLayout)findViewById(R.id.connectionInfoLayout));
+    this.gameInfoLayout = ((LinearLayout)findViewById(R.id.gameInfoLayout));
+    this.overlayLayout = ((LinearLayout)findViewById(R.id.overlayLayout));
+    this.msgText = ((TextView)findViewById(R.id.msgText));
+    this.cardImage = ((ImageView)findViewById(R.id.cardImage));
     this.connectPhones.setOnClickListener(this.connectListener);
     this.dealButton.setOnClickListener(this.dealListener);
     this.startGameButton.setOnClickListener(this.startGameListener);
-    this.startGameButton.setVisibility(0);
+    this.startGameButton.setVisibility(View.VISIBLE);
     this.gestureDetector = new GestureDetector(getApplicationContext(), new MyGestureDetector());
-    this.gestureListener = new View.OnTouchListener()
+    this.gestureListener = new OnTouchListener()
     {
       public boolean onTouch(View paramView, MotionEvent paramMotionEvent)
       {
-        return ClientActivity.this.gestureDetector.onTouchEvent(paramMotionEvent);
+        return gestureDetector.onTouchEvent(paramMotionEvent);
       }
     };
     this.cardImage.setOnClickListener(this);
@@ -195,90 +198,80 @@ public class ClientActivity extends Activity
 
   public void showMsgOverlay()
   {
-    this.overlayLayout.setVisibility(0);
+    this.overlayLayout.setVisibility(View.VISIBLE);
     this.overlayLayout.bringToFront();
     this.cardImage.setOnClickListener(null);
     this.cardImage.setOnTouchListener(null);
   }
 
-  public class ClientThread
-    implements Runnable
-  {
-    public ClientThread()
-    {
-    }
-
-    public void run()
-    {
-      Looper.prepare();
-      try
-      {
-        InetAddress localInetAddress = InetAddress.getByName(ClientActivity.this.serverIpAddress);
-        Log.d("ClientActivity", "C: Connecting..");
-        ClientActivity.this.socket = new Socket(localInetAddress, 8080);
-        ClientActivity.this.connected = true;
-        ClientActivity.this.sendCmdToServer("NEWPLAYER:" + ClientActivity.this.yourName);
-        ClientActivity.this.hideConnectionInfo();
-        while (true)
-        {
-          if (!ClientActivity.this.connected);
-          while (true)
-          {
-            Log.d("ClientActivity", "C: Closed.");
-            return;
-            try
-            {
-              BufferedReader localBufferedReader = new BufferedReader(new InputStreamReader(ClientActivity.this.socket.getInputStream()));
-              while (true)
-              {
-                String str = localBufferedReader.readLine();
-                if (str == null)
-                  break;
-                Log.d("ClientActivity", str);
-                ClientActivity.Command localCommand = new ClientActivity.Command(ClientActivity.this, str);
-                ClientActivity.this.handler.post(new Runnable(localCommand)
-                {
-                  public void run()
-                  {
-                    this.val$cmd.tick();
-                  }
-                });
-              }
-            }
-            catch (Exception localException2)
-            {
-              ClientActivity.this.handler.post(new Runnable()
-              {
-                public void run()
-                {
-                  Intent localIntent = new Intent("CTA_LOG");
-                  localIntent.putExtra("msg", "Oops. Connection interrupted. Please reconnect your phones.");
-                  ClientActivity.this.sendBroadcast(localIntent);
-                }
-              });
-              localException2.printStackTrace();
-            }
-          }
-        }
-      }
-      catch (Exception localException1)
-      {
-        Log.e("ClientActivity", "C: Error", localException1);
-        Toast.makeText(ClientActivity.this.getApplication(), "Error connecting to server", 1).show();
-        ClientActivity.this.connected = false;
-      }
-    }
-  }
+public class ClientThread implements Runnable
+{
+	public void run()
+	{
+		Looper.prepare();
+		try
+		{
+			InetAddress localInetAddress = InetAddress.getByName(serverIpAddress);
+			Log.d("ClientActivity", "C: Connecting..");
+			socket = new Socket(localInetAddress, 8080);
+			connected = true;
+			sendCmdToServer("NEWPLAYER:" + yourName);
+			hideConnectionInfo();
+			while (true)
+			{
+				if (!connected)
+				{
+					Log.d("ClientActivity", "C: Closed.");
+					return;
+				}
+				try
+				{
+					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					String line = null;
+					while ((line = in.readLine()) != null)
+					{
+		                Log.d("ClientActivity", line);
+		                final Command cmd = new Command(line);
+						handler.post(new Runnable() {
+							@Override
+							public void run() {
+								cmd.tick();
+							}
+						});
+					}
+				}
+				catch (Exception localException2)
+				{
+					handler.post(new Runnable() {
+						@Override
+						public void run()
+						{
+							Intent localIntent = new Intent("CTA_LOG");
+							localIntent.putExtra("msg", "Oops. Connection interrupted. Please reconnect your phones.");
+							sendBroadcast(localIntent);
+						}
+					});
+					localException2.printStackTrace();
+				}
+			}
+		}
+		catch (Exception e)
+	    {
+	      Log.e("ClientActivity", "C: Error", e);
+	      Toast.makeText(getApplication(), "Error connecting to server", Toast.LENGTH_SHORT).show();
+	      connected = false;
+	    }
+	}
+}
 
   public class Command
   {
     String cmd;
     String txt;
 
-    public Command(String arg2)
+    public Command(String cmd)
     {
-      Object localObject;
-      String[] arrayOfString = localObject.split(":");
+      String[] arrayOfString = cmd.split(":");
       this.cmd = arrayOfString[0];
       if (arrayOfString.length > 1)
         this.txt = arrayOfString[1];
@@ -288,69 +281,68 @@ public class ClientActivity extends Activity
     public void tick()
     {
       Log.d("CLIENT", "Ticking : " + this.cmd);
-      int i;
+      int i = -1;
       if (this.cmd.equals("SETCARD"))
       {
-        ClientActivity.this.playerCard = Integer.parseInt(this.txt);
+        playerCard = Integer.parseInt(this.txt);
         i = -1;
       }
       try
       {
-        if ((!ClientActivity.this.playerIsDealer) || ((ClientActivity.this.playerIsDealer) && (ClientActivity.this.seenCard)))
-          i = ClientActivity.this.playerCard;
-        Bitmap localBitmap2 = BitmapFactory.decodeStream(ClientActivity.this.getAssets().open("cards/" + i + ".png"));
-        ClientActivity.this.cardImage.setImageBitmap(localBitmap2);
-        ObjectAnimator localObjectAnimator2 = ObjectAnimator.ofFloat(ClientActivity.this.cardImage, "translationX", new float[] { -600.0F, 0.0F });
+        if ((!playerIsDealer) || ((playerIsDealer) && (seenCard)))
+        {
+          i = playerCard;
+        }
+        Bitmap localBitmap2 = BitmapFactory.decodeStream(getAssets().open("cards/" + i + ".png"));
+        cardImage.setImageBitmap(localBitmap2);
+        ObjectAnimator localObjectAnimator2 = ObjectAnimator.ofFloat(cardImage, "translationX", new float[] { -600.0F, 0.0F });
         localObjectAnimator2.setDuration(400L);
         localObjectAnimator2.start();
         if (this.cmd.equalsIgnoreCase("YOURTURN"))
         {
-          ClientActivity.this.hideMsgOverlay();
-          if (!ClientActivity.this.playerIsDealer);
+          hideMsgOverlay();
+          if (!playerIsDealer);
         }
       }
       catch (IOException localIOException2)
       {
         try
         {
-          Bitmap localBitmap1 = BitmapFactory.decodeStream(ClientActivity.this.getAssets().open("cards/" + ClientActivity.this.playerCard + ".png"));
-          ClientActivity.this.cardImage.setImageBitmap(localBitmap1);
-          ClientActivity.this.seenCard = true;
-          ObjectAnimator localObjectAnimator1 = ObjectAnimator.ofFloat(ClientActivity.this.cardImage, "rotationY", new float[] { 360.0F });
+          Bitmap localBitmap1 = BitmapFactory.decodeStream(getAssets().open("cards/" + playerCard + ".png"));
+          cardImage.setImageBitmap(localBitmap1);
+          seenCard = true;
+          ObjectAnimator localObjectAnimator1 = ObjectAnimator.ofFloat(cardImage, "rotationY", new float[] { 360.0F });
           localObjectAnimator1.setDuration(400L);
           localObjectAnimator1.start();
           if (this.cmd.equalsIgnoreCase("SETDEALER"))
           {
-            ClientActivity.this.msgText.setText("You are the dealer.");
-            ClientActivity.this.dealButton.setVisibility(0);
-            ClientActivity.this.seenCard = false;
-            ClientActivity.this.playerIsDealer = true;
+            msgText.setText("You are the dealer.");
+            dealButton.setVisibility(View.VISIBLE);
+            seenCard = false;
+            playerIsDealer = true;
           }
           if (this.cmd.equalsIgnoreCase("UNSETDEALER"))
-            ClientActivity.this.playerIsDealer = false;
+            playerIsDealer = false;
           if (this.cmd.equals("ENDGAME"))
           {
-            ClientActivity.this.showMsgOverlay();
-            ClientActivity.this.msgText.setText("Game Over!");
+            showMsgOverlay();
+            msgText.setText("Game Over!");
           }
           if (this.cmd.equals("WINNER"))
-            ClientActivity.this.msgText.setText(ClientActivity.this.msgText.getText() + "\nWinner: " + this.txt);
+            msgText.setText(msgText.getText() + "\nWinner: " + this.txt);
           if (this.cmd.equals("LOSER"))
-            ClientActivity.this.msgText.setText(ClientActivity.this.msgText.getText() + "\nLoser: " + this.txt);
+            msgText.setText(msgText.getText() + "\nLoser: " + this.txt);
           if (this.cmd.equals("STARTNEWGAME"))
           {
-            ClientActivity.this.msgText.setText("Waiting for your turn.");
-            ClientActivity.this.startGameButton.setVisibility(8);
-            ClientActivity.this.dealButton.setVisibility(8);
+            msgText.setText("Waiting for your turn.");
+            startGameButton.setVisibility(View.GONE);
+            dealButton.setVisibility(View.GONE);
           }
           return;
-          localIOException2 = localIOException2;
-          localIOException2.printStackTrace();
         }
-        catch (IOException localIOException1)
+        catch (Exception e)
         {
-          while (true)
-            localIOException1.printStackTrace();
+            
         }
       }
     }
@@ -364,12 +356,12 @@ public class ClientActivity extends Activity
 
     public boolean onDoubleTap(MotionEvent paramMotionEvent)
     {
-      Toast.makeText(ClientActivity.this, "Sticking", 0).show();
-      ClientActivity.this.sendCmdToServer("STICK");
-      if (!ClientActivity.this.playerIsDealer)
+      Toast.makeText(ClientActivity.this, "Sticking", Toast.LENGTH_SHORT).show();
+      sendCmdToServer("STICK");
+      if (!playerIsDealer)
       {
-        ClientActivity.this.showMsgOverlay();
-        ClientActivity.this.msgText.setText("Waiting on others to finish.");
+        showMsgOverlay();
+        msgText.setText("Waiting on others to finish.");
       }
       return true;
     }
@@ -378,13 +370,13 @@ public class ClientActivity extends Activity
     {
       try
       {
-        if (Math.abs(paramMotionEvent1.getY() - paramMotionEvent2.getY()) > 250.0F)
+        if (Math.abs(paramMotionEvent1.getY() - paramMotionEvent2.getY()) > SWIPE_MAX_OFF_PATH)
           return false;
-        if ((paramMotionEvent1.getX() - paramMotionEvent2.getX() > 120.0F) && (Math.abs(paramFloat1) > 200.0F))
+        if ((paramMotionEvent1.getX() - paramMotionEvent2.getX() > SWIPE_MIN_DISTANCE) && (Math.abs(paramFloat1) > SWIPE_THRESHOLD_VELOCITY))
         {
-          if (ClientActivity.this.connected)
+          if (connected)
           {
-            ObjectAnimator localObjectAnimator = ObjectAnimator.ofFloat(ClientActivity.this.cardImage, "translationX", new float[] { 0.0F, -600.0F });
+            ObjectAnimator localObjectAnimator = ObjectAnimator.ofFloat(cardImage, "translationX", new float[] { 0.0F, -600.0F });
             localObjectAnimator.setDuration(200L);
             localObjectAnimator.start();
             localObjectAnimator.addListener(new Animator.AnimatorListener()
@@ -395,11 +387,11 @@ public class ClientActivity extends Activity
 
               public void onAnimationEnd(Animator paramAnimator)
               {
-                ClientActivity.this.sendCmdToServer("SWAPCARD");
-                if (!ClientActivity.this.playerIsDealer)
+                sendCmdToServer("SWAPCARD");
+                if (!playerIsDealer)
                 {
-                  ClientActivity.this.showMsgOverlay();
-                  ClientActivity.this.msgText.setText("Waiting on others to finish.");
+                  showMsgOverlay();
+                  msgText.setText("Waiting on others to finish.");
                 }
               }
 
@@ -414,8 +406,8 @@ public class ClientActivity extends Activity
             return false;
           }
         }
-        else if ((paramMotionEvent2.getX() - paramMotionEvent1.getX() > 120.0F) && (Math.abs(paramFloat1) > 200.0F))
-          Toast.makeText(ClientActivity.this, "Left Swipe", 0).show();
+        else if ((paramMotionEvent2.getX() - paramMotionEvent1.getX() > SWIPE_MIN_DISTANCE) && (Math.abs(paramFloat1) > SWIPE_THRESHOLD_VELOCITY))
+          Toast.makeText(ClientActivity.this, "Left Swipe", Toast.LENGTH_SHORT).show();
         return false;
       }
       catch (Exception localException)
@@ -425,8 +417,3 @@ public class ClientActivity extends Activity
     }
   }
 }
-
-/* Location:           /Users/emartin/Downloads/CTA/classes-dex2jar.jar
- * Qualified Name:     com.slashmanx.chasetheace.ClientActivity
- * JD-Core Version:    0.6.0
- */
