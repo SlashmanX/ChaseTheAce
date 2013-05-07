@@ -286,65 +286,68 @@ public class ClientThread implements Runnable
       {
         playerCard = Integer.parseInt(this.txt);
         i = -1;
-      }
-      try
-      {
+      
         if ((!playerIsDealer) || ((playerIsDealer) && (seenCard)))
         {
           i = playerCard;
-        }
-        Bitmap localBitmap2 = BitmapFactory.decodeStream(getAssets().open("cards/" + i + ".png"));
-        cardImage.setImageBitmap(localBitmap2);
-        ObjectAnimator localObjectAnimator2 = ObjectAnimator.ofFloat(cardImage, "translationX", new float[] { -600.0F, 0.0F });
-        localObjectAnimator2.setDuration(400L);
-        localObjectAnimator2.start();
-        if (this.cmd.equalsIgnoreCase("YOURTURN"))
-        {
-          hideMsgOverlay();
-          if (!playerIsDealer);
+        
+	        Bitmap localBitmap2 = null;
+			try {
+				localBitmap2 = BitmapFactory.decodeStream(getAssets().open("cards/" + i + ".png"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        cardImage.setImageBitmap(localBitmap2);
+	        ObjectAnimator localObjectAnimator2 = ObjectAnimator.ofFloat(cardImage, "translationX", new float[] { -600.0F, 0.0F });
+	        localObjectAnimator2.setDuration(400L);
+	        localObjectAnimator2.start();
         }
       }
-      catch (IOException localIOException2)
+	  if (this.cmd.equalsIgnoreCase("YOURTURN"))
+	  {
+		  hideMsgOverlay();
+		  if (!playerIsDealer)
+		  {
+		      Bitmap localBitmap1 = null;
+			try {
+				localBitmap1 = BitmapFactory.decodeStream(getAssets().open("cards/" + playerCard + ".png"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      cardImage.setImageBitmap(localBitmap1);
+		      seenCard = true;
+		      ObjectAnimator localObjectAnimator1 = ObjectAnimator.ofFloat(cardImage, "rotationY", new float[] { 360.0F });
+		      localObjectAnimator1.setDuration(400L);
+		      localObjectAnimator1.start();
+		  }
+	  }
+      if (this.cmd.equalsIgnoreCase("SETDEALER"))
       {
-        try
-        {
-          Bitmap localBitmap1 = BitmapFactory.decodeStream(getAssets().open("cards/" + playerCard + ".png"));
-          cardImage.setImageBitmap(localBitmap1);
-          seenCard = true;
-          ObjectAnimator localObjectAnimator1 = ObjectAnimator.ofFloat(cardImage, "rotationY", new float[] { 360.0F });
-          localObjectAnimator1.setDuration(400L);
-          localObjectAnimator1.start();
-          if (this.cmd.equalsIgnoreCase("SETDEALER"))
-          {
-            msgText.setText("You are the dealer.");
-            dealButton.setVisibility(View.VISIBLE);
-            seenCard = false;
-            playerIsDealer = true;
-          }
-          if (this.cmd.equalsIgnoreCase("UNSETDEALER"))
-            playerIsDealer = false;
-          if (this.cmd.equals("ENDGAME"))
-          {
-            showMsgOverlay();
-            msgText.setText("Game Over!");
-          }
-          if (this.cmd.equals("WINNER"))
-            msgText.setText(msgText.getText() + "\nWinner: " + this.txt);
-          if (this.cmd.equals("LOSER"))
-            msgText.setText(msgText.getText() + "\nLoser: " + this.txt);
-          if (this.cmd.equals("STARTNEWGAME"))
-          {
-            msgText.setText("Waiting for your turn.");
-            startGameButton.setVisibility(View.GONE);
-            dealButton.setVisibility(View.GONE);
-          }
-          return;
-        }
-        catch (Exception e)
-        {
-            
-        }
+        msgText.setText("You are the dealer.");
+        dealButton.setVisibility(View.VISIBLE);
+        seenCard = false;
+        playerIsDealer = true;
       }
+      if (this.cmd.equalsIgnoreCase("UNSETDEALER"))
+        playerIsDealer = false;
+      if (this.cmd.equals("ENDGAME"))
+      {
+        showMsgOverlay();
+        msgText.setText("Game Over!");
+      }
+      if (this.cmd.equals("WINNER"))
+        msgText.setText(msgText.getText() + "\nWinner: " + this.txt);
+      if (this.cmd.equals("LOSER"))
+        msgText.setText(msgText.getText() + "\nLoser: " + this.txt);
+      if (this.cmd.equals("STARTNEWGAME"))
+      {
+        msgText.setText("Waiting for your turn.");
+        startGameButton.setVisibility(View.GONE);
+        dealButton.setVisibility(View.GONE);
+      }
+	      return;
     }
   }
 
